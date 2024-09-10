@@ -23,18 +23,34 @@ RGBAvg = np.round(RGBSum/10000)
 HSVAvg = np.zeros((5,5,3), dtype=np.uint8)
 
 def tile_classifier(hue, saturation, value):
-    if value < 50:
-        return 'mine'
-    elif 10 <= hue <= 30 and saturation > 50 and value < 200:
-        return 'wasteland'
-    elif 30 <= hue < 90:
-        return 'desert'
-    elif 60 <= hue <= 90 and value >= 170:
+    
+    # Light green as plains
+    if 28 <= hue <= 65 and value >= 100 and saturation > 160: 
         return 'plains'
-    elif 60 <= hue <= 90 and value < 170:
+    
+    # Dark green as forest
+    elif 28 <= hue <= 50 and saturation > 100 and value < 80: 
         return 'forest'
-    elif 150 <= hue < 240:
+    
+    # "brown" as wasteland
+    elif 18 <= hue <= 30 and saturation < 170 and value > 80:
+        return 'wasteland'
+    
+    # Blue tones as ocean
+    elif 90 <= hue < 120 and saturation > 80: 
         return 'ocean'
+    
+    # yellow tones as desert
+    elif 18 <= hue < 30 and saturation > 200: 
+        return 'desert'
+    
+    # black tones as mine
+    elif 15 <= hue < 30 and saturation > 100 and value < 80: 
+        return 'mine'
+    
+    
+    else:
+        return 'start tile'
     
 classification_array = np.zeros((5,5), dtype=object)
 
@@ -55,21 +71,38 @@ for tileRow in range(5):
         saturation_online = (saturation / 255) * 100
         value_online = (value / 255) * 100
 
-        #print(f"Tile at ({tileRow}, {tileColumn}): OpenCV HSV = {hsv_tile[0][0]}, "
-        #      f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
-        #      f"Classification = {classification}")
+        print(f"Tile at ({tileRow}, {tileColumn}): OpenCV HSV = {hsv_tile[0][0]}, "
+              f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
+              f"Classification = {classification}")
 
 print(classification_array)
 
 
-new_image = np.zeros((500, 500, 3),dtype=np.uint8)
-
+new_image = np.zeros((500, 500, 3))
 
 for tileRow in range(5):
     for tileColumn in range(5):
         new_image[tileRow*100:(tileRow+1)*100, tileColumn*100:(tileColumn+1)*100] = RGBAvg[tileRow, tileColumn]
 
 # Save or display the new image
-cv.imshow("Averaged Image", new_image)
-cv.waitKey(0)
-cv.destroyAllWindows()
+#cv.imshow("Averaged Image", new_image)
+#cv.waitKey(0)
+#cv.destroyAllWindows()
+
+property_array = np.empty
+property_count = 0
+
+def property_counter(array):
+    for i in range(5):
+        for j in range(5):
+            if (array[i][j] == array[i][j-1]):
+                np.insert(property_array, property_count, 2)
+
+                property_count = property_count + 1
+    
+    print(property_array)
+
+    
+
+property_counter(classification_array)
+                
