@@ -71,11 +71,11 @@ for tileRow in range(5):
         saturation_online = (saturation / 255) * 100
         value_online = (value / 255) * 100
 
-        print(f"Tile at ({tileRow}, {tileColumn}): OpenCV HSV = {hsv_tile[0][0]}, "
-              f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
-              f"Classification = {classification}")
+        #print(f"Tile at ({tileRow}, {tileColumn}): OpenCV HSV = {hsv_tile[0][0]}, "
+        #      f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
+        #      f"Classification = {classification}")
 
-print(classification_array)
+#print(classification_array)
 
 
 new_image = np.zeros((500, 500, 3))
@@ -89,20 +89,38 @@ for tileRow in range(5):
 #cv.waitKey(0)
 #cv.destroyAllWindows()
 
-property_array = np.empty
+property_array = np.array([], dtype=int)
 property_count = 0
+inProperty = False
 
 def property_counter(array):
+    global property_array
+    global property_count
+    global inProperty
+
     for i in range(5):
         for j in range(5):
-            if (array[i][j] == array[i][j-1]):
-                np.insert(property_array, property_count, 2)
+            if inProperty == False and j > 0 and (array[i][j] == array[i][j-1]):
+                property_array = np.insert(property_array, property_count, 1)
 
-                property_count = property_count + 1
-    
+                property_count += 1
+
+                #print(array[i][j])
+
+                print()
+
+                inProperty = True
+
+            if inProperty == True and j > 0 and (array[i][j] == array[i][j-1]) and j<5:
+                property_array[-1] += 1
+
+                if i<4 and array[i+1][j] == array[i][j]:
+                    property_array[-1] += 1
+
+            else:
+                inProperty = False
+    #wtf i will shutdown the live share right now
     print(property_array)
-
-    
 
 property_counter(classification_array)
                 

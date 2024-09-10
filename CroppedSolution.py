@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/3.jpg", cv.IMREAD_COLOR)
 
 RGBSum = np.zeros((5,5,3))
 
@@ -70,6 +70,7 @@ for tileRow in range(5):
         new_image[tileRow*100:(tileRow+1)*100, tileColumn*100:(tileColumn+1)*100] = RGBAvg[tileRow, tileColumn]
 
 # Save or display the new image
-cv.imshow("Averaged Image", new_image)
+cv.imshow("Original Image", image)
+cv.imshow("New Image", new_image)
 cv.waitKey(0)
 cv.destroyAllWindows()
