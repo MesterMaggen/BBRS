@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/37.jpg", cv.IMREAD_COLOR)
 
 RGBSum = np.zeros((5,5,3))
 
@@ -75,7 +75,7 @@ for tileRow in range(5):
         #      f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
         #      f"Classification = {classification}")
 
-#print(classification_array)
+print(classification_array)
 
 
 new_image = np.zeros((500, 500, 3))
