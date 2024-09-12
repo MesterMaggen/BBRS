@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/72.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/9.jpg", cv.IMREAD_COLOR)
 
 RGBSum = np.zeros((5,5,3))
 
