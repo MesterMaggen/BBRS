@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/37.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg", cv.IMREAD_COLOR)
 
 RGBSum = np.zeros((5,5,3))
 
@@ -89,7 +89,8 @@ for tileRow in range(5):
 #cv.waitKey(0)
 #cv.destroyAllWindows()
 
-property_array = np.array([], dtype=int)
+#property_array = np.array([], dtype=int)
+property_array = np.zeros((5,5))
 property_count = 0
 inProperty = False
 
@@ -99,30 +100,47 @@ def property_counter(array):
     global inProperty
 
     for i in range(5):
-        for j in range(4):
-            if inProperty == False and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array = np.insert(property_array, property_count, 1)
+        for j in range(5):
+            if inProperty == False:
 
-                property_count += 1
+                if j<4 and array[i][j] == array[i][j+1]:
 
-                #print(array[i][j])
+                    if property_array[i][j+1] != 0:
+                        property_array[i][j] = property_array[i][j+1]
 
-                print()
+                        inProperty = True
 
-                inProperty = True
+                    else:
+                        property_array[i][j] = property_count
 
-            if inProperty == True and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array[-1] += 1
+                        property_array[i][j+1] = property_count
+
+                        property_count += 1
+
+                    if i<4 and array[i][j] == array[i+1][j]:
+                        property_array[i+1][j] = property_array[i][j]
+
+                    inProperty = True
+                
+                else:
+
+                    property_array[i][j] = property_count
+
+                    property_count += 1
+
+                    inProperty = False
+
+            elif inProperty == True and j < 4 and (array[i][j] == array[i][j+1]):
+                property_array[i][j+1] = property_array[i][j]
 
                 if i<4 and array[i+1][j] == array[i][j]:
-                    property_array[-1] += 1
+                    property_array[i+1][j] = property_array[i][j]
 
             else:
                 inProperty = False
     #wtf i will shutdown the live share right now
     print(property_array)
 
-#property_counter(classification_array)
-
+property_counter(classification_array)
 #if right = left, if top = bottom
                 
