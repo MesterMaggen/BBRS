@@ -1,7 +1,9 @@
 import cv2 as cv
 import numpy as np
+from collections import deque
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg", cv.IMREAD_COLOR)
+
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg", cv.IMREAD_COLOR)
 
 RGBSum = np.zeros((5,5,3))
 
@@ -91,38 +93,41 @@ for tileRow in range(5):
 
 #property_array = np.array([], dtype=int)
 property_array = np.zeros((5,5))
-property_count = 0
+property_count = 1
 inProperty = False
+
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def create_property(array,i,j,tile_type,property_ID):
+    rows, cols = array.shape
+    queue = deque([(i, j)])
+    
+    property_array[i,j] = property_ID
+
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            # If the neighboring tile is within bounds and matches the type, assign it the same property ID
+            if 0 <= nx < rows and 0 <= ny < cols and array[nx, ny] == tile_type and property_array[nx, ny] == 0:
+                property_array[nx,ny] = property_ID
+                queue.append((nx, ny))
 
 def property_counter(array):
     global property_array
     global property_count
-    global inProperty
 
-    for i in range(5):
-        for j in range(4):
-            if inProperty == False and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array = np.insert(property_array, property_count, 1)
+    rows, cols = array.shape
 
-                        property_count += 1
 
-                #print(array[i][j])
-
-                print()
-
-                inProperty = True
-
-            if inProperty == True and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array[-1] += 1
-
-                if i<4 and array[i+1][j] == array[i][j]:
-                    property_array[i+1][j] = property_array[i][j]
-
-            else:
-                inProperty = False
-    #wtf i will shutdown the live share right now
-    print(property_array)
+    for i in range(rows):
+        for j in range(cols):
+            if property_array[i,j] == 0:
+                create_property(array,i,j,array[i,j],property_count)
+                property_count += 1
 
 property_counter(classification_array)
-#if right = left, if top = bottom
-                
+
+print(property_array)           
+ 
