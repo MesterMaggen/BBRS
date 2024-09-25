@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/6.jpg", cv.IMREAD_COLOR)
 #new_image = np.zeros((500, 500, 3),dtype=np.uint8)
 
 sharpening_kernel = np.array([[-1, -1, -1],
@@ -16,7 +16,7 @@ upper_bound = np.array([255, 255, 255])
 masked_image = cv.inRange(sharpened_image, lower_bound, upper_bound)
 
 cv.imshow('Original Image', image)
-#cv.imshow('Sharpened Image', sharpened_image)
+cv.imshow('Sharpened Image', sharpened_image)
 cv.imshow('Masked Image', masked_image)
 cv.waitKey(0)
 cv.destroyAllWindows()
