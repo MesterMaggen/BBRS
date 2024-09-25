@@ -102,18 +102,16 @@ def property_counter(array):
     for i in range(5):
         for j in range(4):
             if inProperty == False and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array = np.insert(property_array, property_count, 1)
+                property_array[i, j] = 1
 
-                        property_count += 1
+                property_count += 1
 
                 #print(array[i][j])
-
-                print()
 
                 inProperty = True
 
             if inProperty == True and j < 4 and (array[i][j] == array[i][j+1]):
-                property_array[-1] += 1
+                #property_array[-1] += 1
 
                 if i<4 and array[i+1][j] == array[i][j]:
                     property_array[i+1][j] = property_array[i][j]
