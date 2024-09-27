@@ -130,4 +130,11 @@ def property_counter(array):
 property_counter(classification_array)
 
 print(property_array)           
+
+property_list = np.array([], dtype=int)
+
+for i in range(1, len(np.unique(property_array))+1):
+    property_list.append(np.count_nonzero(property_array == i))
+
+print(property_list)
  
