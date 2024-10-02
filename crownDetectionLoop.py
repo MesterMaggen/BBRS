@@ -39,7 +39,7 @@ for j in range(1,11,1):
         templated_image = cv.matchTemplate(masked_image, template, cv.TM_CCOEFF_NORMED)
         locations = np.where(templated_image >= 0.35)
         h, w = template.shape[:2]
-
+        
         for pt in zip(*locations[::-1]):
             cv.rectangle(matched_image, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 2)
         template = cv.rotate(template, cv.ROTATE_90_CLOCKWISE)
