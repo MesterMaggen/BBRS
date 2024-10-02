@@ -20,7 +20,7 @@ for tileRow in range(5):
 
 
 RGBAvg = np.round(RGBSum/10000)
-#print(RGBAvg)
+print(RGBAvg)
 
 HSVAvg = np.zeros((5,5,3), dtype=np.uint8)
 
@@ -134,7 +134,7 @@ print(property_array)
 property_list = np.array([], dtype=int)
 
 for i in range(1, len(np.unique(property_array))+1):
-    property_list.append(np.count_nonzero(property_array == i))
+    property_list = np.append(property_list, np.count_nonzero(property_array == i))
 
 print(property_list)
  
