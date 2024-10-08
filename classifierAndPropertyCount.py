@@ -3,9 +3,13 @@ import numpy as np
 from collections import deque
 
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg", cv.IMREAD_COLOR)
+image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/4.jpg", cv.IMREAD_COLOR)
+
+#define RGBsum array to store the sum of RGB values of each tile
 
 RGBSum = np.zeros((5,5,3))
+
+# Find the sum of all RBG values in all 25 100x100 pixel tiles
 
 for tileRow in range(5):
     for tileColumn in range(5):
@@ -18,13 +22,15 @@ for tileRow in range(5):
                 RGBSum[tileRow,tileColumn, 1] += pixel[1]
                 RGBSum[tileRow,tileColumn, 2] += pixel[2]
 
+# divide the sum of RGB values by 10000 to get the average RGB value of each tile
 
 RGBAvg = np.round(RGBSum/10000)
-print(RGBAvg)
 
-HSVAvg = np.zeros((5,5,3), dtype=np.uint8)
+# HSVAvg array to store the average HSV values of each tile
 
-def tile_classifier(hue, saturation, value):
+#Classification of the tiles with HSV thresholding:
+
+def tile_thresholder(hue, saturation, value):
     
     # Light green as plains
     if 28 <= hue <= 65 and value >= 100 and saturation > 160: 
@@ -50,60 +56,51 @@ def tile_classifier(hue, saturation, value):
     elif 15 <= hue < 30 and saturation > 100 and value < 80: 
         return 'mine'
     
+    # else it is the start tile or no tile at all
+    # classified as start tile in both cases for simplification
     
     else:
         return 'start tile'
     
 classification_array = np.zeros((5,5), dtype=object)
 
-for tileRow in range(5):
-    for tileColumn in range(5):
-        rgb_value = np.array([[RGBAvg[tileRow, tileColumn]]], dtype=np.uint8)
+# Classifier function to classify each tile
 
-        #print(f"BGR value at ({tileRow}, {tileColumn}): {rgb_value}")
-        
-        
-        hsv_tile = cv.cvtColor(rgb_value, cv.COLOR_BGR2HSV)
-        hue, saturation, value = hsv_tile[0,0]
+def tile_classifier(RGBAvg):
 
-        classification = tile_classifier(hue, saturation, value)
+    for tileRow in range(5):
+        for tileColumn in range(5):
+            rgb_value = np.array([[RGBAvg[tileRow, tileColumn]]], dtype=np.uint8)
 
-        classification_array[tileRow, tileColumn] = classification
+            hsv_tile = cv.cvtColor(rgb_value, cv.COLOR_BGR2HSV)
+            hue, saturation, value = hsv_tile[0,0]
 
-        saturation_online = (saturation / 255) * 100
-        value_online = (value / 255) * 100
+            classification = tile_thresholder(hue, saturation, value)
 
-        #print(f"Tile at ({tileRow}, {tileColumn}): OpenCV HSV = {hsv_tile[0][0]}, "
-        #      f"Online HSV = (H: {hue}, S: {saturation_online:.2f}, V: {value_online:.2f}), "
-        #      f"Classification = {classification}")
+            classification_array[tileRow, tileColumn] = classification
+
+    return classification_array
+
+tile_classifier(RGBAvg)
 
 print(classification_array)
 
-
-new_image = np.zeros((500, 500, 3))
-
-for tileRow in range(5):
-    for tileColumn in range(5):
-        new_image[tileRow*100:(tileRow+1)*100, tileColumn*100:(tileColumn+1)*100] = RGBAvg[tileRow, tileColumn]
-
-# Save or display the new image
-#cv.imshow("Averaged Image", new_image)
-#cv.waitKey(0)
-#cv.destroyAllWindows()
-
-#property_array = np.array([], dtype=int)
 property_array = np.zeros((5,5))
 property_count = 1
 inProperty = False
 
+# directions for "flood fill" algorithm to find connected tiles of the same type
 directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
+# Function to find connected tiles of the same type (properties):
 
 def create_property(array,i,j,tile_type,property_ID):
     rows, cols = array.shape
     queue = deque([(i, j)])
     
     property_array[i,j] = property_ID
+
+    #flood fill algorithm:
 
     while queue:
         x, y = queue.popleft()
@@ -120,7 +117,6 @@ def property_counter(array):
 
     rows, cols = array.shape
 
-
     for i in range(rows):
         for j in range(cols):
             if property_array[i,j] == 0:
@@ -131,10 +127,28 @@ property_counter(classification_array)
 
 print(property_array)           
 
-property_list = np.array([], dtype=int)
+# array with properties and crowns in each property
+property_list = np.zeros([2, len(np.unique(property_array))], dtype=int)
 
-for i in range(1, len(np.unique(property_array))+1):
-    property_list = np.append(property_list, np.count_nonzero(property_array == i))
+# add each property and crowns in the property to the property_list array
+for i in range(1, len(np.unique(property_array))):
+    property_list[0,i] = np.count_nonzero(property_array == i)
 
 print(property_list)
- 
+
+# function to count the score of the board:
+
+def ScoreCounter(property_list, classification_array):
+    score = 0
+
+    # property size * crowns in property for each property is added to the score
+    for i in range(1, len(np.unique(property_array))):
+        score += property_list[0,i] * property_list[1,i]
+
+    # 10 additional points if the start tile is in the center of the board
+    if (classification_array[2,2] == 'start tile'):
+        score += 10
+
+    return score
+
+print(ScoreCounter(property_list, classification_array))
