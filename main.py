@@ -9,17 +9,16 @@ def ScoreCount(image):
 
 
 
-for j in range(60,75,1):
+for j in range(1,60,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
 
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/3.jpg", cv.IMREAD_COLOR)
+    image = cv.imread(imageText, cv.IMREAD_COLOR)
 
-Classified_array, property_list = cp.Classifier(image)
+    Classified_array, property_list = cp.Classifier(image)
 
-cp.ScoreCounter(Classified_array, property_list)
+    score = cp.ScoreCounter(Classified_array, property_list)
 
-#print(property_count)
-
+    print(score)
 
 
     
