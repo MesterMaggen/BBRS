@@ -85,16 +85,16 @@ def tile_classifier(image):
 
             classification_array[tileRow, tileColumn] = classification
 
-    return classification_array
+    #print(classification_array)
 
-#print(classification_array)
+    return classification_array
 
 property_array = np.zeros((5,5))
 
 # Function to find connected tiles of the same type (properties):
 
 def create_property(array,i,j,tile_type,property_ID):
-    rows, cols = array.shape
+    rows, cols = np.shape(array)
     queue = deque([(i, j)])
     
     property_array[i,j] = property_ID
@@ -114,10 +114,8 @@ def create_property(array,i,j,tile_type,property_ID):
 
 def property_counter(array):
     global property_array
-    property_count = 0
-    rows, cols = array.shape
-
-    print(property_array.shape)
+    property_count = 1
+    rows, cols = np.shape(array)
 
     for i in range(rows):
         for j in range(cols):
@@ -130,7 +128,7 @@ def property_counter(array):
     # add each property and crowns in the property to the property_list array
     for i in range(1, len(np.unique(property_array))):
         property_list[0,i] = np.count_nonzero(property_array == i)
-    
+
     return property_list
 
 #property_counter(tile_classifier(image))
@@ -149,11 +147,22 @@ def ScoreCounter(property_list, classification_array):
 
     # property size * crowns in property for each property is added to the score
     for i in range(1, len(np.unique(property_array))):
+
         score += property_list[0,i] * property_list[1,i]
+
+    print("tile Score: " + str(score))
 
     # 10 additional points if the start tile is in the center of the board
     if (classification_array[2,2] == 'start tile'):
         score += 10
+
+        print("Start tile in the center of the board")
+
+    UnknownCount = np.sum(classification_array == 'start tile')
+    if UnknownCount == 1:
+        score += 5
+
+        print("full board")
 
     return score
 
