@@ -19,37 +19,67 @@ def StretchedBGR(BGR_Image):
     hsv_stretched = cv.merge([h, s, v_stretched])
 
     return cv.cvtColor(hsv_stretched, cv.COLOR_HSV2BGR)
-stretched_image = StretchedBGR(image)
 
-sharpening_kernel = np.array([[-1, -1, -1], [-1,  10, -1], [-1, -1, -1]])
-sharpened_image = cv.filter2D(src=stretched_image, ddepth=-1, kernel=sharpening_kernel)
+for j in range(1,32,1):
+    imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
+    image = cv.imread(imageText, cv.IMREAD_COLOR)
+    print("Image:",j)
+    stretched_image = StretchedBGR(image)
 
-blurred_image = cv.GaussianBlur(stretched_image, (3, 3), 1.0)
-laplacian = cv.Laplacian(blurred_image, cv.CV_64F)
-laplacian_abs = cv.convertScaleAbs(laplacian)
-enhanced_image = cv.addWeighted(stretched_image, 1.5, laplacian_abs, -0.5, 0)
+    sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])
+    sharpened_image = cv.filter2D(src=stretched_image, ddepth=-1, kernel=sharpening_kernel)
 
-lower_bound = np.array([155, 155, 155])
-upper_bound = np.array([255, 255, 255])
-masked_image = cv.inRange(sharpened_image, lower_bound, upper_bound)
+    lower_bound = np.array([155]*3)
+    upper_bound = np.array([255]*3)
+    masked_image = cv.inRange(sharpened_image, lower_bound, upper_bound)
 
-template = cv.imread("CrownTemplate.jpg", cv.IMREAD_GRAYSCALE)
-matched_image = image.copy()
-for i in range(4):
-    templated_image = cv.matchTemplate(masked_image, template, cv.TM_CCOEFF_NORMED)
-    locations = np.where(templated_image >= 0.35)
-    h, w = template.shape[:2]
+    template = cv.imread("CrownTemplate.jpg", cv.IMREAD_GRAYSCALE)
+    matched_image = image.copy()
+    filtered_matches = []
 
-    for pt in zip(*locations[::-1]):
-        cv.rectangle(matched_image, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 2)
-    template = cv.rotate(template, cv.ROTATE_90_CLOCKWISE)
+    for i in range(4):
+        templated_image = cv.matchTemplate(masked_image, template, cv.TM_CCOEFF_NORMED)
+        locations = np.where(templated_image >= 0.34)
+        
+        matches = list(zip(*locations[::-1]))  # This gives [(x1, y1), (x2, y2), ...]
 
-cv.imshow('Original Image', image)
-cv.imshow("Stretched Image", stretched_image)
-cv.imshow('Sharpened Image', sharpened_image)
-cv.imshow('Laplacian Image', enhanced_image)
-cv.imshow('Masked Image', masked_image)
-cv.imshow('Matched Image', matched_image)
+        # Get the corresponding match scores for each location
+        scores = templated_image[locations]
 
-cv.waitKey(0)
-cv.destroyAllWindows()
+        sorted_idxs = np.argsort(scores)[::-1]  # Sort in descending order of score
+
+        for idx in sorted_idxs:
+            current_match = matches[idx]
+            current_match = (current_match[0], current_match[1])
+            keep = True
+            for selected_match in filtered_matches:
+                # Calculate Euclidean distance between the current match and already selected matches
+                distance = np.linalg.norm(np.array(current_match) - np.array(selected_match))
+                if distance < template.shape[1]//2:
+                    keep = False
+                    break
+            if keep:
+                #filtered_matches.append(current_match)
+                filtered_matches.append(current_match)
+                # print("Appended",current_match)
+                # print("Filtered Matches",filtered_matches)
+                h, w = template.shape[:2]
+                cv.rectangle(matched_image, current_match, (current_match[0] + w, current_match[1] + h), (0, 255, 0), 2)
+
+        template = cv.rotate(template, cv.ROTATE_90_CLOCKWISE)
+
+    crownArray = np.zeros((5,5),np.uint8)
+
+    for match in filtered_matches:
+        crownArray[match[1]//100,match[0]//100] += 1
+
+    print(crownArray)
+
+    cv.imshow('Original Image', image)
+    cv.imshow("Stretched Image", stretched_image)
+    cv.imshow('Sharpened Image', sharpened_image)
+    cv.imshow('Masked Image', masked_image)
+    cv.imshow('Matched Image', matched_image)
+
+    cv.waitKey(0)
+    cv.destroyAllWindows()
