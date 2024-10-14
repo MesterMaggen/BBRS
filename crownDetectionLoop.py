@@ -23,9 +23,9 @@ def StretchedBGR(BGR_Image):
 
 def WithinYellowBounds(HSV):
     #HSV_lower = np.array([24,150,150],np.uint8)
-    HSV_lower = np.array([24,140,140],np.uint8)
+    HSV_lower = np.array([24,130,130],np.uint8)
     #HSV_upper = np.array([35,195,195],np.uint8)
-    HSV_upper = np.array([35,255,255],np.uint8)
+    HSV_upper = np.array([31,235,235],np.uint8)
 
     return np.all(HSV_lower <= HSV) and np.all(HSV <= HSV_upper)
 
@@ -63,17 +63,36 @@ def FindYellowBlobs(BGR_Image):
                                 coords.append([neighbor[0],neighbor[1]])
                                 visited.add((neighbor[0],neighbor[1])) 
                 Blobs.append(Blob)
-    
+
+    cv.imshow('Bush Image', Masked_Image)
+
     for i, Blob in enumerate(Blobs):
         if not (150 >= len(Blob) >= 40):
             for coord in Blob:
                 Masked_Image[coord[0],coord[1]] = 0
     
+    kernel = np.ones((3,3),np.uint8)
+    blobbed_image = cv.morphologyEx(Masked_Image, cv.MORPH_OPEN, kernel)
+
+    cv.imshow('BushFilter Image', Masked_Image)
+    cv.imshow('BushOpened Image', blobbed_image)
+
     Blobs = np.concatenate(Blobs).tolist()
 
-    return Masked_Image
+    return Masked_Image #Masked_Image
 
-for j in range(22,31,1):
+def CreateFilterImage():
+    image = np.zeros((500, 500), dtype=np.uint8)
+
+    for i in range(5):
+        for j in range(5):
+            top_left = (100*i, 100*j)  
+            bottom_right = (100*(i+1), 100*(j+1))
+            cv.rectangle(image, top_left, bottom_right, (255), thickness=55)
+    
+    return image
+
+for j in range(30,51,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
     image = cv.imread(imageText, cv.IMREAD_COLOR)
     print("Image:",j)
@@ -118,6 +137,11 @@ for j in range(22,31,1):
 
     template = cv.imread("CrownTemplate.jpg", cv.IMREAD_GRAYSCALE)
     matched_image = stretched_image.copy()
+    filter_image = CreateFilterImage()
+    #cv.imshow('Filter Image', filter_image)
+
+    filtered_matches = []
+
     for i in range(4):
         templated_image = cv.matchTemplate(masked_image, template, cv.TM_CCOEFF_NORMED)
 
@@ -134,22 +158,49 @@ for j in range(22,31,1):
                                 ((pad_top, pad_bottom), (pad_left, pad_right)), 
                                 mode='constant', constant_values=0)
 
-        locations = np.where((padded_template >= 0.2) & (blobbed_image == 255))
-        locations = [(x - pad_left, y - pad_top) for y, x in zip(locations[0], locations[1])]
+        locations = np.where((padded_template >= 0.20) & (blobbed_image == 255) & (filter_image == 255))
+        matches = list(zip(*locations[::-1]))  # This gives [(x1, y1), (x2, y2), ...]
+
+        # Get the corresponding match scores for each location
+        scores = padded_template[locations]
+
+        sorted_idxs = np.argsort(scores)[::-1]  # Sort in descending order of score
+
+        for idx in sorted_idxs:
+            current_match = matches[idx]
+            current_match = (current_match[0] - pad_left, current_match[1] - pad_top)
+            keep = True
+            for selected_match in filtered_matches:
+                # Calculate Euclidean distance between the current match and already selected matches
+                distance = np.linalg.norm(np.array(current_match) - np.array(selected_match))
+                if distance < template.shape[1]//2:
+                    keep = False
+                    break
+            if keep:
+                #filtered_matches.append(current_match)
+                filtered_matches.append(current_match)
+                # print("Appended",current_match)
+                # print("Filtered Matches",filtered_matches)
+                h, w = template.shape[:2]
+                
+                for pt in filtered_matches:
+                    cv.rectangle(matched_image, current_match, (current_match[0] + w, current_match[1] + h), (0, 255, 0), 2)
         
-        h, w = template.shape[:2]
-        
-        for pt in locations:
-            cv.rectangle(matched_image, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 2)
-        #blobbed_image = cv.rotate(blobbed_image, cv.ROTATE_90_CLOCKWISE)
         template = cv.rotate(template, cv.ROTATE_90_CLOCKWISE)
+    
+    crownArray = np.zeros((5,5),np.uint8)
+
+    for match in filtered_matches:
+        crownArray[match[1]//100,match[0]//100] += 1
+
+    print(crownArray)
 
     # cv.imshow('Original Image', image)
-    cv.imshow("Stretched Image", stretched_image)
+    # cv.imshow("Stretched Image", stretched_image)
     # cv.imshow('Sharpened Image', sharpened_image)
     # cv.imshow("Gray Image", gray_image)
     # cv.imshow('Edges', edges)        
-    cv.imshow('Blobbed Image1', blobbed_image1)   
+    # cv.imshow('Blobbed Image1', blobbed_image1)   
     cv.imshow('Blobbed Image', blobbed_image)
     cv.imshow('Masked Image', masked_image)
     cv.imshow('Matched Image', matched_image)
