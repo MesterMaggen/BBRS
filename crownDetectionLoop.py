@@ -95,15 +95,8 @@ def FindYellowBlobs(BGR_Image):
                 Masked_Image[coord[0],coord[1]] = 0
     
 
-<<<<<<< Updated upstream
     # cv.imshow('BushFilter Image', Masked_Image)
     # cv.imshow('BushOpened Image', blobbed_image)
-=======
-    cv.imshow('BushFiltered Image', Masked_Image)
-    cv.imshow('BushOpened Image', opened_image)
-    cv.imshow('BushOpenedFiltered Image', opened_image)
-    cv.waitKey()
->>>>>>> Stashed changes
 
     Blobs = np.concatenate(Blobs).tolist()
 
@@ -120,20 +113,10 @@ def CreateFilterImage():
     
     return image
 
-<<<<<<< Updated upstream
-# for j in range(30,51,1):
-#     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
-#     image = cv.imread(imageText, cv.IMREAD_COLOR)
-    # print("Image:",j)
-
-def CrownDetection(image):
-
-=======
 for j in range(1,32,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
     image = cv.imread(imageText, cv.IMREAD_COLOR)
     print("Image:",j)
->>>>>>> Stashed changes
     stretched_image = StretchedBGR(image)
  
     sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])
@@ -231,7 +214,6 @@ for j in range(1,32,1):
     for match in filtered_matches:
         crownArray[match[1]//100,match[0]//100] += 1
 
-    return crownArray
     # cv.imshow('Original Image', image)
     # cv.imshow("Stretched Image", stretched_image)
     # cv.imshow('Sharpened Image', sharpened_image)
