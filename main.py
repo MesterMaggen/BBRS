@@ -2,13 +2,14 @@ import cv2 as cv
 import numpy as np
 from collections import deque
 import classifierAndPropertyCount as cp
+import crownDetectionLoop as cdl
 
 with open("GroundTruth.DAT", 'r') as file:
     dat_values = [line.strip() for line in file]
 
-trainAmount = 20
+trainAmount = 1
 
-TestArray = np.zeros(75)
+TestArray = np.zeros(75-trainAmount)
 
 for j in range(trainAmount,75,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
@@ -17,12 +18,14 @@ for j in range(trainAmount,75,1):
 
     Classified_array, property_list = cp.Classifier(image)
 
-    score = cp.ScoreCounter(Classified_array, property_list)
+    score = cp.ScoreCounter(Classified_array, property_list, j)
 
-    #print(score)
+    # print("total board score:", score)
+    # print("")
 
-    TestArray[j] = score
+    TestArray[j-trainAmount] = score
 
+print(TestArray)
 
 correctScore = 0
 
@@ -33,6 +36,8 @@ for i in range(trainAmount,75,1):
         correctScore += 1
     
 CorrectBoardShare = correctScore / (75-trainAmount) * 100
+
+print(CorrectBoardShare)
 
 # Mean score error:
 
@@ -46,4 +51,4 @@ for i in range(trainAmount,75,1):
 
 meanScoreError = abs(GroundTruthScoreSum - AlgorithmScoreSum) / (75-trainAmount)
 
-print(Classified_array)
+print(meanScoreError)

@@ -64,7 +64,7 @@ def FindYellowBlobs(BGR_Image):
                                 visited.add((neighbor[0],neighbor[1])) 
                 Blobs.append(Blob)
 
-    cv.imshow('Bush Image', Masked_Image)
+    # cv.imshow('Bush Image', Masked_Image)
 
     for i, Blob in enumerate(Blobs):
         if not (150 >= len(Blob) >= 40):
@@ -74,8 +74,8 @@ def FindYellowBlobs(BGR_Image):
     kernel = np.ones((3,3),np.uint8)
     blobbed_image = cv.morphologyEx(Masked_Image, cv.MORPH_OPEN, kernel)
 
-    cv.imshow('BushFilter Image', Masked_Image)
-    cv.imshow('BushOpened Image', blobbed_image)
+    # cv.imshow('BushFilter Image', Masked_Image)
+    # cv.imshow('BushOpened Image', blobbed_image)
 
     Blobs = np.concatenate(Blobs).tolist()
 
@@ -92,10 +92,13 @@ def CreateFilterImage():
     
     return image
 
-for j in range(30,51,1):
-    imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
-    image = cv.imread(imageText, cv.IMREAD_COLOR)
-    print("Image:",j)
+# for j in range(30,51,1):
+#     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
+#     image = cv.imread(imageText, cv.IMREAD_COLOR)
+    # print("Image:",j)
+
+def CrownDetection(image):
+
     stretched_image = StretchedBGR(image)
 
     sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])
@@ -193,17 +196,16 @@ for j in range(30,51,1):
     for match in filtered_matches:
         crownArray[match[1]//100,match[0]//100] += 1
 
-    print(crownArray)
-
+    return crownArray
     # cv.imshow('Original Image', image)
     # cv.imshow("Stretched Image", stretched_image)
     # cv.imshow('Sharpened Image', sharpened_image)
     # cv.imshow("Gray Image", gray_image)
     # cv.imshow('Edges', edges)        
     # cv.imshow('Blobbed Image1', blobbed_image1)   
-    cv.imshow('Blobbed Image', blobbed_image)
-    cv.imshow('Masked Image', masked_image)
-    cv.imshow('Matched Image', matched_image)
+    # cv.imshow('Blobbed Image', blobbed_image)
+    # cv.imshow('Masked Image', masked_image)
+    # cv.imshow('Matched Image', matched_image)
 
     cv.waitKey()
     cv.destroyAllWindows()
