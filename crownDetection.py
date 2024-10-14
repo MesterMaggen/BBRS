@@ -20,10 +20,7 @@ def StretchedBGR(BGR_Image):
 
     return cv.cvtColor(hsv_stretched, cv.COLOR_HSV2BGR)
 
-for j in range(1,32,1):
-    imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
-    image = cv.imread(imageText, cv.IMREAD_COLOR)
-    print("Image:",j)
+def CrownDetection(image):
     stretched_image = StretchedBGR(image)
 
     sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])
@@ -73,13 +70,4 @@ for j in range(1,32,1):
     for match in filtered_matches:
         crownArray[match[1]//100,match[0]//100] += 1
 
-    print(crownArray)
-
-    cv.imshow('Original Image', image)
-    cv.imshow("Stretched Image", stretched_image)
-    cv.imshow('Sharpened Image', sharpened_image)
-    cv.imshow('Masked Image', masked_image)
-    cv.imshow('Matched Image', matched_image)
-
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    return crownArray
