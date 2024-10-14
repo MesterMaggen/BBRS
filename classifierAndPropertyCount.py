@@ -15,7 +15,15 @@ def RBGimage(image):
         for tileColumn in range(5):
             tempimg = image[tileRow*100:(tileRow+1)*100, tileColumn*100:(tileColumn+1)*100]
             RGBAvg[tileRow,tileColumn] = np.mean(tempimg, axis=(0,1))
-                    
+
+    RGBAvg = np.clip(RGBAvg, 0, 255).astype(np.uint8)
+
+    RGBAvg_scaled = cv.resize(RGBAvg, (500, 500), interpolation=cv.INTER_NEAREST)
+
+    # Display the image
+    #cv.imshow("RGBAvg", RGBAvg_scaled)
+    #cv.waitKey()
+    #cv.destroyAllWindows()            
 
     # divide the sum of RGB values by 10000 to get the average RGB value of each tile
 
@@ -138,6 +146,8 @@ def ScoreCounter(classification_array, property_list):
         score += 5
 
         print("full board")
+
+    print(Classified_array)
 
     return score
 
