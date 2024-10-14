@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 from collections import deque
-import crownDetectionLoop as cdl
 import crownDetection as cd
 
 
@@ -85,9 +84,10 @@ def tile_classifier(image):
 
     return classification_array
 
-property_array = np.zeros((5,5))
 
 # Function to find connected tiles of the same type (properties):
+property_array = np.zeros((5,5))
+
 
 def create_property(array,i,j,tile_type,property_ID, property_array):
     rows, cols = array.shape
@@ -114,10 +114,10 @@ def property_counter(classified_array, crownArray):
     property_count = 1
     rows, cols = classified_array.shape
 
-    combined_array = np.zeros((5,5,2), dtype=object)
+    combined_array = np.zeros((rows,cols,2), dtype=object)
 
-    for i in range(5):
-        for j in range(5):
+    for i in range(rows):
+        for j in range(cols):
             combined_array[i,j] = [classified_array[i,j], crownArray[i,j]]
 
     for i in range(rows):
@@ -126,12 +126,18 @@ def property_counter(classified_array, crownArray):
                 create_property(classified_array,i,j,classified_array[i,j],property_count, property_array)
                 property_count += 1
 
-    property_list = np.zeros([2, len(np.unique(property_array))], dtype=int)
+    unique_properties = np.unique(property_array)
+    unique_properties = unique_properties[unique_properties > 0]
+
+    property_list = np.zeros([2, len(unique_properties)], dtype=int)
 
     # add each property and crowns in the property to the property_list array
-    for i in range(1, len(np.unique(property_array))):
-        property_list[0,i] = np.count_nonzero(property_array == i)
-        property_list[1,i] = np.sum(crownArray[property_array == i])
+    for i, prop in enumerate(unique_properties):
+        property_list[0, i] = np.count_nonzero(property_array == prop)
+        property_list[1, i] = np.sum(crownArray[property_array == prop])
+
+    # print(property_array)
+
 
     return property_list
 
@@ -141,10 +147,11 @@ def ScoreCounter(classification_array, property_list, imageNr):
     print("Image: " + str(imageNr))
 
     # property size * crowns in property for each property is added to the score
-    for i in range(1, property_list.shape[1]):
+    for i in range(0, property_list.shape[1]):
 
         score += (property_list[0,i] * property_list[1,i])
 
+    # print(property_list)
     # print("tile Score: " + str(score))
 
     # 10 additional points if the start tile is in the center of the board

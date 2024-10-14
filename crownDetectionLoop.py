@@ -116,7 +116,7 @@ def CreateFilterImage():
 for j in range(1,32,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
     image = cv.imread(imageText, cv.IMREAD_COLOR)
-    print("Image:",j)
+    # print("Image:",j)
     stretched_image = StretchedBGR(image)
  
     sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])

@@ -1,8 +1,6 @@
 import cv2 as cv
 import numpy as np
  
-image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg", cv.IMREAD_COLOR)
-
 def StretchedBGR(BGR_Image):
     HSV_Image = cv.cvtColor(BGR_Image, cv.COLOR_BGR2HSV)
 
