@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 from collections import deque
 import crownDetectionLoop as cdl
+import crownDetection as cd
 
 
 
@@ -164,7 +165,7 @@ def Classifier(image):
 
     Classified_array = tile_classifier(image)
 
-    property_list = property_counter(Classified_array, cdl.CrownDetection(image))
+    property_list = property_counter(Classified_array, cd.CrownDetection(image))
 
     # print(property_list)
 
