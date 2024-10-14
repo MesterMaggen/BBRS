@@ -9,30 +9,17 @@ from collections import deque
 
 def RBGimage(image):
 
-    RGBSum = np.zeros((5,5,3))
-
-    # Find the sum of all RBG values in all 25 100x100 pixel tiles
+    RGBAvg = np.zeros((5,5,3))
 
     for tileRow in range(5):
         for tileColumn in range(5):
             tempimg = image[tileRow*100:(tileRow+1)*100, tileColumn*100:(tileColumn+1)*100]
-            #print("First square")
-            for row in tempimg:
-                for pixel in row:
-                    #print(pixel)
-                    RGBSum[tileRow,tileColumn, 0] += pixel[0]
-                    RGBSum[tileRow,tileColumn, 1] += pixel[1]
-                    RGBSum[tileRow,tileColumn, 2] += pixel[2]
+            RGBAvg[tileRow,tileColumn] = np.mean(tempimg, axis=(0,1))
+                    
 
     # divide the sum of RGB values by 10000 to get the average RGB value of each tile
 
-    RGBAvg = np.round(RGBSum/10000)
-
-    return RGBAvg
-
-# HSVAvg array to store the average HSV values of each tile
-
-#Classification of the tiles with HSV thresholding:
+    return np.round(RGBAvg)
 
 def tile_thresholder(hue, saturation, value):
     
@@ -66,8 +53,6 @@ def tile_thresholder(hue, saturation, value):
     else:
         return 'start tile'
 
-# Classifier function to classify each tile
-
 def tile_classifier(image):
     
     classification_array = np.zeros((5,5), dtype=object)
@@ -93,10 +78,9 @@ property_array = np.zeros((5,5))
 
 # Function to find connected tiles of the same type (properties):
 
-def create_property(array,i,j,tile_type,property_ID):
-    rows, cols = np.shape(array)
-    queue = deque([(i, j)])
-    
+def create_property(array,i,j,tile_type,property_ID, property_array):
+    rows, cols = array.shape
+    queue = deque([(i, j)])    
     property_array[i,j] = property_ID
 
     #flood fill algorithm:
@@ -112,15 +96,17 @@ def create_property(array,i,j,tile_type,property_ID):
                 property_array[nx,ny] = property_ID
                 queue.append((nx, ny))
 
+    return property_array
+
 def property_counter(array):
-    global property_array
+    property_array = np.zeros(array.shape)
     property_count = 1
-    rows, cols = np.shape(array)
+    rows, cols = array.shape
 
     for i in range(rows):
         for j in range(cols):
             if property_array[i,j] == 0:
-                create_property(array,i,j,array[i,j],property_count)
+                create_property(array,i,j,array[i,j],property_count, property_array)
                 property_count += 1
 
     property_list = np.zeros([2, len(np.unique(property_array))], dtype=int)
@@ -131,18 +117,7 @@ def property_counter(array):
 
     return property_list
 
-#property_counter(tile_classifier(image))
-
-#print(property_array)           
-
-# array with properties and crowns in each property
-
-
-#print(property_list)
-
-# function to count the score of the board:
-
-def ScoreCounter(property_list, classification_array):
+def ScoreCounter(classification_array, property_list):
     score = 0
 
     # property size * crowns in property for each property is added to the score
@@ -165,8 +140,6 @@ def ScoreCounter(property_list, classification_array):
         print("full board")
 
     return score
-
-#print(ScoreCounter(property_list, classification_array))
 
 def Classifier(image):
 
