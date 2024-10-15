@@ -7,8 +7,8 @@ import crownDetection as cd
 with open("GroundTruth.DAT", 'r') as file:
     dat_values = [line.strip() for line in file]
 
-trainAmount = 40
-lastImage = 70
+trainAmount = 55
+lastImage = 73
 
 TestArray = np.zeros(74-trainAmount)
 
@@ -31,13 +31,15 @@ for j in range(trainAmount,74,1):
 
     print(Classified_array)
 
-    cv.imshow("Image", image)
-    cv.waitKey(0)   
-    cv.destroyAllWindows()
+    # cv.imshow("Image", image)
+    # cv.waitKey(0)      
+    # cv.destroyAllWindows()
 
 # print(TestArray)
 
 correctScore = 0
+
+# best = 31%
 
 # Share of correctly classified boards:
 
@@ -67,5 +69,11 @@ meanScoreError = round(abs(GroundTruthScoreSum - AlgorithmScoreSum) / (lastImage
 
 print(f"Mean score error: {meanScoreError}")
 
+normalizedImage = cp.histogramFunction(image)
 
+print(TestArray)
 
+# cv.imshow("Image", normalizedImage)
+
+# cv.waitKey(0)
+# cv.destroyAllWindows()

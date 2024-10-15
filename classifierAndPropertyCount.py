@@ -75,19 +75,19 @@ def tile_thresholder(hue, saturation, value):
     print(hue, saturation, value)
 
     # Light green as plains
-    if 28 <= hue <= 65 and saturation > 100 and value >= 60: 
+    if 28 <= hue <= 65 and saturation > 100 and value >= 82: 
         return 'plains'
     
     # Dark green as forest
-    elif 25 <= hue <= 80 and saturation > 70 and value < 65: 
+    elif 25 <= hue <= 80 and saturation > 70 and value < 75: 
         return 'forest'
 
   # yellow tones as desert
-    elif 18 <= hue < 30 and saturation > 200 and value > 105: 
+    elif 22 <= hue < 30 and saturation > 200 and value > 105: 
         return 'desert'
 
     # "brown" as wasteland
-    elif 18 <= hue <= 30 and saturation < 200 and value > 70:
+    elif 18 <= hue <= 30 and saturation < 200 and value > 82:
         return 'wasteland'
     
     # Blue tones as ocean
@@ -95,7 +95,7 @@ def tile_thresholder(hue, saturation, value):
         return 'ocean'
     
     # black tones as mine
-    elif 15 <= hue < 30 and saturation > 60 and value < 80: 
+    elif 15 <= hue < 30 and saturation > 60 and value < 77: 
         return 'mine'
     
     # else it is the start tile or no tile at all
