@@ -7,7 +7,8 @@ import crownDetection as cd
 with open("GroundTruth.DAT", 'r') as file:
     dat_values = [line.strip() for line in file]
 
-trainAmount = 2
+trainAmount = 40
+lastImage = 70
 
 TestArray = np.zeros(74-trainAmount)
 
@@ -28,13 +29,19 @@ for j in range(trainAmount,74,1):
 
     TestArray[j-trainAmount] = score
 
+    print(Classified_array)
+
+    cv.imshow("Image", image)
+    cv.waitKey(0)   
+    cv.destroyAllWindows()
+
 # print(TestArray)
 
 correctScore = 0
 
 # Share of correctly classified boards:
 
-for i in range(trainAmount,74,1):
+for i in range(trainAmount,lastImage,1):
 
 
 
@@ -42,7 +49,7 @@ for i in range(trainAmount,74,1):
         correctScore += 1
 
     
-CorrectBoardShare = round(correctScore / (74-trainAmount) * 100)
+CorrectBoardShare = round(correctScore / (lastImage-trainAmount) * 100)
 
 print(f"Board percentage: {CorrectBoardShare}%")
 
@@ -51,12 +58,12 @@ print(f"Board percentage: {CorrectBoardShare}%")
 GroundTruthScoreSum = 0
 AlgorithmScoreSum = 0
 
-for i in range(trainAmount,74,1):
+for i in range(trainAmount,lastImage,1):
     GroundTruthScoreSum += int(dat_values[i-1])
 
     AlgorithmScoreSum += TestArray[i-trainAmount]
 
-meanScoreError = round(abs(GroundTruthScoreSum - AlgorithmScoreSum) / (74-trainAmount))
+meanScoreError = round(abs(GroundTruthScoreSum - AlgorithmScoreSum) / (lastImage-trainAmount))
 
 print(f"Mean score error: {meanScoreError}")
 

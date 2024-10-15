@@ -3,11 +3,50 @@ import numpy as np
 from collections import deque
 import crownDetection as cd
 
+def histogramStrech(channel):
+    min_val = np.min(channel)
+    max_val = np.max(channel)
 
+    stretched_channel = 255 * ((channel - min_val) / (max_val - min_val))
 
-#image = cv.imread("King Domino dataset/Cropped and perspective corrected boards/4.jpg", cv.IMREAD_COLOR)
+    stretched_channel = stretched_channel.astype(np.uint8)
 
-#define RGBsum array to store the sum of RGB values of each tile
+    return stretched_channel
+
+def histogramFunction(image):
+    
+    r,g,b = cv.split(image)
+
+    r_strecthed = histogramStrech(r)
+    g_strecthed = histogramStrech(g)
+    b_strecthed = histogramStrech(b)
+
+    stretched_image = cv.merge([r_strecthed, g_strecthed, b_strecthed])
+
+    return stretched_image
+
+def colorNormalizer(image):
+
+    imgFloat = image.astype(np.float32)
+
+    sumChannels = np.sum(imgFloat, axis=(2))
+
+    sumChannels[sumChannels == 0] = 0.01
+
+    r_normalized = imgFloat[:,:,0] / sumChannels
+    g_normalized = imgFloat[:,:,1] / sumChannels
+    b_normalized = imgFloat[:,:,2] / sumChannels
+
+    normalized_image = cv.merge([b_normalized, g_normalized, r_normalized])
+
+    normalized_image = (normalized_image * 255).astype(np.uint8)
+
+    return normalized_image
+
+def gaussianBlur(image, kernel_size):
+
+    return cv.GaussianBlur(image, (kernel_size, kernel_size), 0)
+
 
 def RBGimage(image):
 
@@ -33,28 +72,30 @@ def RBGimage(image):
 
 def tile_thresholder(hue, saturation, value):
     
+    print(hue, saturation, value)
+
     # Light green as plains
-    if 28 <= hue <= 65 and value >= 100 and saturation > 160: 
+    if 28 <= hue <= 65 and saturation > 100 and value >= 60: 
         return 'plains'
     
     # Dark green as forest
-    elif 28 <= hue <= 50 and saturation > 100 and value < 80: 
+    elif 25 <= hue <= 80 and saturation > 70 and value < 65: 
         return 'forest'
-    
+
+  # yellow tones as desert
+    elif 18 <= hue < 30 and saturation > 200 and value > 105: 
+        return 'desert'
+
     # "brown" as wasteland
-    elif 18 <= hue <= 30 and saturation < 170 and value > 80:
+    elif 18 <= hue <= 30 and saturation < 200 and value > 70:
         return 'wasteland'
     
     # Blue tones as ocean
     elif 90 <= hue < 120 and saturation > 80: 
         return 'ocean'
     
-    # yellow tones as desert
-    elif 18 <= hue < 30 and saturation > 200: 
-        return 'desert'
-    
     # black tones as mine
-    elif 15 <= hue < 30 and saturation > 100 and value < 80: 
+    elif 15 <= hue < 30 and saturation > 60 and value < 80: 
         return 'mine'
     
     # else it is the start tile or no tile at all
@@ -81,6 +122,13 @@ def tile_classifier(image):
             classification_array[tileRow, tileColumn] = classification
 
     #print(classification_array)
+    
+    RGBavg_scaled = cv.resize(RGBAvg, (500, 500), interpolation=cv.INTER_NEAREST)
+
+    # cv.imshow("Image", RGBavg_scaled)
+
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
     return classification_array
 
@@ -169,6 +217,14 @@ def ScoreCounter(classification_array, property_list, imageNr):
     return score
 
 def Classifier(image):
+
+    # strechedImage = histogramFunction(image)
+
+    # normalizedImage = colorNormalizer(strechedImage)
+
+    # blurredImage = gaussianBlur(strechedImage, 5)
+
+    # RGBimage = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
     Classified_array = tile_classifier(image)
 
