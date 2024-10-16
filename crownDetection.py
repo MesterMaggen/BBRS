@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
- 
+
 def StretchedBGR(BGR_Image):
     HSV_Image = cv.cvtColor(BGR_Image, cv.COLOR_BGR2HSV)
 
@@ -11,7 +11,7 @@ def StretchedBGR(BGR_Image):
     v_max = np.max(v_float)
     
     v_stretched = 255 * (v_float - v_min) / (v_max - v_min)
-    
+
     v_stretched = v_stretched.astype(np.uint8)
     
     hsv_stretched = cv.merge([h, s, v_stretched])
