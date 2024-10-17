@@ -25,7 +25,7 @@ def WithinYellowBounds(HSV):
     #HSV_lower = np.array([24,150,150],np.uint8)
     HSV_lower = np.array([24,110,110],np.uint8)
     #HSV_upper = np.array([35,195,195],np.uint8)
-    HSV_upper = np.array([31,235,235],np.uint8)
+    HSV_upper = np.array([31,255,255],np.uint8)
 
     return np.all(HSV_lower <= HSV) and np.all(HSV <= HSV_upper)
 
@@ -82,7 +82,7 @@ def FindYellowBlobs(BGR_Image):
                                 visited.add((neighbor[0],neighbor[1])) 
                 Blobs.append(Blob)
 
-    # cv.imshow('Bush Image', Masked_Image)
+    cv.imshow('Bush Image', Masked_Image)
 
     kernel = np.ones((3,3),np.uint8)
     opened_image = cv.morphologyEx(Masked_Image, cv.MORPH_OPEN, kernel)
@@ -95,8 +95,8 @@ def FindYellowBlobs(BGR_Image):
                 Masked_Image[coord[0],coord[1]] = 0
     
 
-    # cv.imshow('BushFilter Image', Masked_Image)
-    # cv.imshow('BushOpened Image', blobbed_image)
+    cv.imshow('BushFilter Image', Masked_Image)
+    #cv.imshow('BushOpened Image', blobbed_image)
 
     Blobs = np.concatenate(Blobs).tolist()
 
@@ -116,7 +116,7 @@ def CreateFilterImage():
 for j in range(1,32,1):
     imageText = "King Domino dataset/Cropped and perspective corrected boards/" + str(j) + ".jpg"
     image = cv.imread(imageText, cv.IMREAD_COLOR)
-    # print("Image:",j)
+    print("Image:",j)
     stretched_image = StretchedBGR(image)
  
     sharpening_kernel = np.array([[-1, -1, -1], [-1,  10 , -1], [-1, -1, -1]])
@@ -159,7 +159,7 @@ for j in range(1,32,1):
     template = cv.imread("CrownTemplate.jpg", cv.IMREAD_GRAYSCALE)
     matched_image = stretched_image.copy()
     filter_image = CreateFilterImage()
-    #cv.imshow('Filter Image', filter_image)
+    # cv.imshow('Filter Image', filter_image)
 
     filtered_matches = []
 
@@ -215,12 +215,12 @@ for j in range(1,32,1):
         crownArray[match[1]//100,match[0]//100] += 1
 
     # cv.imshow('Original Image', image)
-    # cv.imshow("Stretched Image", stretched_image)
+    cv.imshow("Stretched Image", stretched_image)
     # cv.imshow('Sharpened Image', sharpened_image)
     # cv.imshow("Gray Image", gray_image)
     # cv.imshow('Edges', edges)        
     # cv.imshow('Blobbed Image1', blobbed_image1)   
-    # cv.imshow('Blobbed Image', blobbed_image)
+    cv.imshow('Blobbed Image', blobbed_image)
     # cv.imshow('Masked Image', masked_image)
     # cv.imshow('Matched Image', matched_image)
 

@@ -25,7 +25,7 @@ for tileRow in range(5):
             print("Color:",color)
             print("Count:",count)
 
-            topColors= [most_common_colors[i][1] for i in range(20)]
+            topColors= [most_common_colors[i][1] for i in range(10)]
             endIndex = round(tileRow*100 + currPixel + 100*(count/(np.sum(topColors))))
             print("TopColors:", topColors)
             print("StartIndex:", tileRow*100 + currPixel)
